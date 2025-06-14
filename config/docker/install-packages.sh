@@ -5,7 +5,7 @@ apt update && apt upgrade -y
 
 # Install specific packages
 PACKAGES=(
-  neovim
+  zsh
 )
 
 # Install the packages

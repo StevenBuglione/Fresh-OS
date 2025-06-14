@@ -34,6 +34,14 @@ fi
 # 4️⃣ Update the user’s password
 echo "$NEWUSER:$NEWPWD" | chpasswd
 
+# 4.5️⃣ Install zsh if need be, and set it as the default shell
+if ! command -v zsh &>/dev/null; then
+  apt-get update
+  DEBIAN_FRONTEND=noninteractive apt-get install -y zsh
+fi
+# as root, change NEWUSER’s login shell to /usr/bin/zsh
+usermod -s /usr/bin/zsh "$NEWUSER"
+
 # 5️⃣ Fix sudoers file
 if [[ -f "/etc/sudoers.d/$PLACEHOLDER" ]]; then
   mv "/etc/sudoers.d/$PLACEHOLDER" "/etc/sudoers.d/$NEWUSER"
