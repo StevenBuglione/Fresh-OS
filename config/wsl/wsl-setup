@@ -52,6 +52,37 @@ else
   sed -i "s/^\(\s*default\s*=\).*/\1$NEWUSER/" "$wsl_conf"
 fi
 
+# Simple spinner function
+spinner() {
+  local pid=$1
+  local delay=0.1
+  local spinstr='|/-\'
+  tput civis    # hide cursor
+  while kill -0 "$pid" 2>/dev/null; do
+    for c in ${spinstr}; do
+      printf "\r correcting ownership… %c " "$c"
+      sleep $delay
+    done
+  done
+  printf "\r corrected ownership!    \n"
+  tput cnorm    # restore cursor
+}
+
+# Kick off the chown in the background
+(
+  chown -R "$NEWUSER:$NEWUSER" \
+    /nix \
+    /home/"$NEWUSER"/.nix-profile \
+    /home/"$NEWUSER"/.nix-defexpr \
+    /home/"$NEWUSER"/.nix-channels \
+    /home/"$NEWUSER"/.config
+) &
+pid=$!
+
+# Show spinner while that runs
+spinner "$pid"
+wait "$pid"
+
 # 7️⃣ Mark done (and disable future runs)
 touch "$FLAG"
 # Optionally remove this script so it never shows up again:
