@@ -1,0 +1,47 @@
+{
+  "profiles": [
+    {
+      "antialiasingMode": "grayscale",
+      "fontSize" : 13,
+      "fontWeight": "normal",
+
+      "colorScheme": "Fresh-OS Dark Mint",
+      "cursorColor": "#00FF9B",
+      "cursorShape": "bar",
+
+      "historySize": 9001,
+      "snapOnInput": true,
+      "font":
+      {
+        "face": "JetBrainsMonoNL Nerd Font"
+      }
+    }
+  ],
+ "schemes": [
+    {
+      "name": "Fresh-OS Dark Mint",
+      "background": "#1e1e1e",
+      "foreground": "#c0c0c0",
+      "cursorColor": "#00FF9B",
+      "selectionBackground": "#005f3f",
+
+      "black": "#0c0c0c",
+      "red": "#ff5c57",
+      "green": "#00FF9B",
+      "yellow": "#f3f99d",
+      "blue": "#57c7ff",
+      "purple": "#c678dd",
+      "cyan": "#9aedfe",
+      "white": "#ffffff",
+
+      "brightBlack": "#686868",
+      "brightRed": "#ff7373",
+      "brightGreen": "#5eff9b",
+      "brightYellow": "#ffffa5",
+      "brightBlue": "#75bfff",
+      "brightPurple": "#d48fff",
+      "brightCyan": "#c1ffff",
+      "brightWhite": "#ffffff"
+    }
+  ]
+}

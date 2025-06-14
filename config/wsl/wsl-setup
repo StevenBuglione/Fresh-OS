@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+FLAG="/var/run/freshos-oobe-done"
+PLACEHOLDER="${NIX_USER:-nixbuild}"   # must match your setup script’s NIX_USER
+
+# Only run once
+if [[ -f "$FLAG" ]]; then
+  exit 0
+fi
+
+# 1️⃣ Prompt for real creds
+echo "Welcome to Fresh-OS first-run setup!"
+read -rp "Choose your username: " NEWUSER
+while [[ ! "$NEWUSER" =~ ^[a-z_][a-z0-9_-]*$ ]]; do
+  echo "Invalid. Use lowercase letters, digits, underscores or dashes, start with letter/underscore."
+  read -rp "Choose your username: " NEWUSER
+done
+read -rsp "Choose your password: " NEWPWD
+echo
+
+# 2️⃣ Rename the primary group
+if getent group "$PLACEHOLDER" >/dev/null; then
+  groupmod -n "$NEWUSER" "$PLACEHOLDER"
+fi
+
+# 3️⃣ Rename the user and its home directory
+if id "$PLACEHOLDER" &>/dev/null; then
+  usermod -l "$NEWUSER" \
+          -d "/home/$NEWUSER" \
+          -m "$PLACEHOLDER"
+fi
+
+# 4️⃣ Update the user’s password
+echo "$NEWUSER:$NEWPWD" | chpasswd
+
+# 5️⃣ Fix sudoers file
+if [[ -f "/etc/sudoers.d/$PLACEHOLDER" ]]; then
+  mv "/etc/sudoers.d/$PLACEHOLDER" "/etc/sudoers.d/$NEWUSER"
+  sed -i "s/$PLACEHOLDER/$NEWUSER/g" "/etc/sudoers.d/$NEWUSER"
+  chmod 0440 "/etc/sudoers.d/$NEWUSER"
+fi
+
+# 6️⃣ Update WSL default user
+wsl_conf="/etc/wsl.conf"
+mkdir -p "$(dirname "$wsl_conf")"
+if ! grep -q "^\[user\]" "$wsl_conf"; then
+  printf "\n[user]\ndefault=%s\n" "$NEWUSER" >> "$wsl_conf"
+elif ! grep -q "^\s*default\s*=" "$wsl_conf"; then
+  sed -i "/^\[user\]/a default=$NEWUSER" "$wsl_conf"
+else
+  sed -i "s/^\(\s*default\s*=\).*/\1$NEWUSER/" "$wsl_conf"
+fi
+
+# 7️⃣ Mark done (and disable future runs)
+touch "$FLAG"
+# Optionally remove this script so it never shows up again:
+rm -- "$0"
+
+echo
+echo "All set! You are now '$NEWUSER'. Please close and reopen your shell."
